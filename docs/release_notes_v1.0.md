@@ -1,12 +1,14 @@
 # Release Notes — v1.0.0
 
-> 状态：发布准备就绪 ｜ 由 `docs/technical_report.md` 与验证记录汇总
+> 上游能力基线 Release 草稿（Windows + SPSS 32）。本 fork 后续版本见根目录 `CHANGELOG.md`（当前 **1.1.x**：macOS / SPSS 27）。
+>
+> 由 `docs/technical_report.md` 与验证记录汇总
 
 ## 概述
 
 spss-mcp 是面向 IBM SPSS Statistics 的 MCP 服务器，为 Codex / Claude /
-Cursor 提供"统计引擎 + 制图工厂 + 结构化消费 + 安全护栏"四合一能力。全部功能
-已在 SPSS Statistics 32.0.0 真机验收。
+Cursor 提供"统计引擎 + 制图工厂 + 结构化消费 + 安全护栏"四合一能力。v1.0.0 全部功能
+已在 SPSS Statistics 32.0.0（Windows）真机验收。
 
 ## 亮点
 
@@ -34,15 +36,21 @@ Cursor 提供"统计引擎 + 制图工厂 + 结构化消费 + 安全护栏"四�
 
 ## 安装
 
-```powershell
-pip install spss-mcp
+```bash
+# 本 fork（推荐）
+uvx --from git+https://github.com/kinginsun/spss-mcp.git spss-mcp status
+
+# 或本地开发
+pip install -e ".[dev]"
 spss-mcp status
 ```
 
 ## 版本
 
-- 当前版本：`0.3.1`（0.3.0 完成 P3/P4 功能，0.3.1 修复 boxplot 全格式导出）
+- 本文档对应能力基线：**v1.0.0**（0.3.0 完成 P3/P4，0.3.1 修复 boxplot）
+- 本 fork 当前版本见 `src/spss_mcp/_version.py` / `CHANGELOG.md`（**1.1.x**）
 
 ## 致谢
 
-上游：`Exekiel179/SPSS-MCP`（MIT）。
+- 更早上游：`Exekiel179/SPSS-MCP`（MIT）
+- 上游仓库：`flupke91/spss-studio-mcp`（MIT）

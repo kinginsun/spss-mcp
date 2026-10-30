@@ -82,6 +82,7 @@ export SPSS_INSTALL_PATH="/Applications/IBM SPSS Statistics 27"
 辅助配置：
 
 ```bash
+spss-mcp configure-cursor   # 写入 ~/.cursor/mcp.json
 spss-mcp configure-claude
 spss-mcp configure-codex
 spss-mcp setup-info

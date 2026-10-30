@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.2] - 2026-10-30
+
+### Added
+- **`spss-mcp configure-cursor`**：自动写入 / 合并 `~/.cursor/mcp.json`（默认 `uvx`，可用 `--prefer-installed`）
+
 ## [1.1.1] - 2026-10-30
 
 ### Changed

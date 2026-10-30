@@ -22,28 +22,13 @@ export SPSS_INSTALL_PATH="/Applications/IBM SPSS Statistics 27"
 ## 第 2 步：配置 MCP 客户端
 
 ```bash
+spss-mcp configure-cursor    # Cursor → ~/.cursor/mcp.json（推荐）
 spss-mcp configure-codex     # Codex
-spss-mcp configure-claude   # Claude Code
-spss-mcp setup-info         # 打印手动配置片段（含 Cursor）
+spss-mcp configure-claude    # Claude Code
+spss-mcp setup-info          # 打印手动配置片段
 ```
 
-Cursor（推荐 `uvx`，无需先全局安装）：
-
-```json
-{
-  "mcpServers": {
-    "spss-mcp": {
-      "command": "uvx",
-      "args": ["spss-mcp", "serve", "--transport", "stdio"],
-      "env": {
-        "SPSS_INSTALL_PATH": "/Applications/IBM SPSS Statistics 27"
-      }
-    }
-  }
-}
-```
-
-写入 `~/.cursor/mcp.json` 后 Reload MCP。
+`configure-cursor` 默认写入 `uvx spss-mcp serve`（有 `uvx` 时）；也可用 `--prefer-installed` 改用本机已安装的 `spss-mcp`。写完后 **Reload MCP**。
 
 ## 第 3 步：使用
 

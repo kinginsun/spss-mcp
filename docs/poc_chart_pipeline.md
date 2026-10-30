@@ -3,6 +3,8 @@
 > 验证日期：2026-08-04
 > 环境：Windows + IBM SPSS Statistics **32.0.0**（`C:\Program Files\IBM\SPSS Statistics\stats.exe`）
 > 结论：**SPSS 32 已移除 `OMS FORMAT=IMAGE` / `IMAGEROOT`**，出图方案改为「HTML 内嵌 base64 PNG 提取」+「DOCX 内嵌矢量 EMF 提取」
+>
+> **本 fork（macOS / SPSS 27）补充**：同一 HTML 链路；若内嵌为 JPEG，则先转为 PNG 再做 300 dpi 后处理。样例图与自然语言示例见 [../examples/README.md](../examples/README.md)。
 
 ---
 

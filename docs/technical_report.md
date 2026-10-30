@@ -1,6 +1,8 @@
 # SPSS Studio MCP：论文级图表导出、深度结果解析与安全执行的研究助手
 
 > 技术报告 ｜ 2026-08-05 ｜ 实测环境：Windows + IBM SPSS Statistics 32.0.0
+>
+> **说明**：本文记录上游 v1.0 能力基线。本仓库 fork（`spss-mcp` / `kinginsun/spss-mcp`）在保留上述能力的基础上增加了 **macOS / SPSS 27+** 适配；日常安装与 Agent 用法见 [tutorial.md](tutorial.md)、[../examples/README.md](../examples/README.md)、[../CHANGELOG.md](../CHANGELOG.md)。
 
 ## 摘要
 
@@ -112,10 +114,10 @@ GENLINMIXED subject 名义化、GENLIN `DISTRIBUTION` 并入 MODEL 等。
 
 ## 6 结论
 
-SPSS Studio MCP 证明了"统计引擎 + 制图工厂 + 结构化消费 + 安全护栏"的组合在
+spss-mcp（原 SPSS Studio MCP）证明了"统计引擎 + 制图工厂 + 结构化消费 + 安全护栏"的组合在
 真实 SPSS 32 上可落地：37 工具全量真机验收、论文级图片自动化、16 类结果摘要、
 执行安全审计。项目文档齐备（出图 PoC、结果解析、方法验证、安全），为心理/管理
-/社科研究的 agent 工作流提供了可复用的 MCP 服务。
+/社科研究的 agent 工作流提供了可复用的 MCP 服务。本 fork 进一步将同一套契约落到 macOS。
 
 ## 附录：复现
 

@@ -17,6 +17,11 @@ from spss_mcp.codex_config import (
     configure_codex_settings,
     get_codex_config_path,
 )
+from spss_mcp.cursor_config import (
+    build_cursor_mcp_entry,
+    configure_cursor_settings,
+    get_cursor_mcp_path,
+)
 
 
 def main():
@@ -66,6 +71,21 @@ def main():
         "--local",
         action="store_true",
         help="Write to settings.local.json instead of settings.json",
+    )
+
+    # configure-cursor
+    cursor_parser = subparsers.add_parser(
+        "configure-cursor",
+        help="Detect SPSS and automatically update Cursor ~/.cursor/mcp.json",
+    )
+    cursor_parser.add_argument(
+        "--config-file",
+        help="Explicit Cursor mcp.json path to update",
+    )
+    cursor_parser.add_argument(
+        "--prefer-installed",
+        action="store_true",
+        help="Use installed spss-mcp entrypoint instead of uvx",
     )
 
     args = parser.parse_args()
@@ -119,13 +139,19 @@ def main():
         from spss_mcp._version import __version__
 
         snippet = {"mcpServers": {"spss": build_mcp_server_config()}}
+        cursor_snippet = {"mcpServers": {"spss-mcp": build_cursor_mcp_entry()}}
 
         print(f"=== spss-mcp v{__version__} Setup Info ===")
         print(f"Command: {executable_command}")
         print(f"Args: {json.dumps(executable_args)}")
         print()
-        print("Add to your Claude Code MCP settings:")
+        print("Cursor (~/.cursor/mcp.json):")
+        print(json.dumps(cursor_snippet, indent=2))
+        print()
+        print("Claude Code MCP settings:")
         print(json.dumps(snippet, indent=2))
+        print()
+        print(f"Or run: spss-mcp configure-cursor  # writes {get_cursor_mcp_path()}")
         sys.exit(0)
 
     elif args.command == "configure-codex":
@@ -165,6 +191,26 @@ def main():
         print(json.dumps({"spss": result["entry"]}, indent=2))
         print()
         print("Restart Claude Code to load the updated MCP server.")
+        sys.exit(0)
+
+    elif args.command == "configure-cursor":
+        from pathlib import Path
+
+        config_path = Path(args.config_file).expanduser() if args.config_file else None
+        result = configure_cursor_settings(
+            config_path,
+            prefer_uvx=not args.prefer_installed,
+        )
+        print("=== Cursor configuration updated ===")
+        print(f"Status: {result['status']}")
+        print(f"Config: {result['config_path']}")
+        if result["backup_path"]:
+            print(f"Backup: {result['backup_path']}")
+        print()
+        print("Configured MCP entry:")
+        print(json.dumps({"spss-mcp": result["entry"]}, indent=2))
+        print()
+        print("Reload MCP / restart Cursor to load the updated MCP server.")
         sys.exit(0)
 
     elif args.command == "serve":
