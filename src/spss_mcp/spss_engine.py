@@ -19,8 +19,11 @@ from pathlib import Path
 from typing import Optional
 
 from spss_mcp.config import (
+    build_spss_engine_env,
     get_spss_executable,
+    get_spss_home,
     get_spss_python,
+    get_spss_site_packages,
     get_startup_timeout,
     get_temp_dir,
     get_timeout,
@@ -29,17 +32,33 @@ from spss_mcp.config import (
 # ─── Engine subprocess script ─────────────────────────────────────────────────
 
 
-def _make_engine_script(spss_home: str) -> str:
+def _make_engine_script(spss_home: str, site_packages: str | None = None) -> str:
     """
     Generate the Python script that runs inside SPSS Python3 as the persistent engine.
     It starts SPSS once, signals readiness, then loops reading JSON commands from stdin.
     """
     spss_home_r = repr(spss_home)
+    if site_packages:
+        site_packages_r = repr(site_packages)
+        site_insert = f"sys.path.insert(0, {site_packages_r})"
+    else:
+        # Windows default layout relative to the install dir that holds stats.exe
+        site_insert = (
+            'sys.path.insert(0, os.path.join(SPSS_HOME, "Python3", '
+            '"Lib", "site-packages"))'
+        )
     lines = [
         "import sys, os, json",
         f"SPSS_HOME = {spss_home_r}",
+        'os.environ["SPSS_HOME"] = SPSS_HOME',
         'os.environ["PATH"] = SPSS_HOME + os.pathsep + os.environ.get("PATH", "")',
-        'sys.path.insert(0, os.path.join(SPSS_HOME, "Python3", "Lib", "site-packages"))',
+        # macOS: Contents/bin (engine) + Contents/MacOS (stats) on PATH
+        'os.environ["PATH"] = (',
+        '    os.path.join(SPSS_HOME, "bin") + os.pathsep',
+        '    + os.path.join(SPSS_HOME, "MacOS") + os.pathsep',
+        '    + os.environ["PATH"]',
+        ")",
+        site_insert,
         "import spss",
         "",
         "# ── Start SPSS engine once ──",
@@ -138,7 +157,29 @@ class SpssEngine:
 
     def __init__(self):
         self._proc: Optional[asyncio.subprocess.Process] = None
-        self._lock = asyncio.Lock()
+        self._lock: Optional[asyncio.Lock] = None
+        self._lock_loop: Optional[asyncio.AbstractEventLoop] = None
+
+    def _ensure_lock(self) -> asyncio.Lock:
+        """Return an ``asyncio.Lock`` bound to the currently running event loop.
+
+        Tests and CLI helpers often call ``asyncio.run()`` repeatedly. A Lock
+        (and subprocess transports) created on a closed loop cannot be reused,
+        so we recreate the lock and drop the stale process handle when the loop
+        identity changes.
+        """
+        loop = asyncio.get_running_loop()
+        if self._lock is None or self._lock_loop is not loop:
+            if self._proc is not None and self._lock_loop is not loop:
+                # Stale transport from a previous loop — kill best-effort.
+                try:
+                    self._proc.kill()
+                except Exception:
+                    pass
+                self._proc = None
+            self._lock = asyncio.Lock()
+            self._lock_loop = loop
+        return self._lock
 
     async def _read_startup_diagnostics(self) -> str:
         """Collect whatever stderr and exit information is available during startup failure."""
@@ -193,18 +234,22 @@ class SpssEngine:
 
         spss_python = get_spss_python()
         if not spss_python:
+            hint = (
+                "Resources/Python3/bin/python3*"
+                if sys.platform == "darwin"
+                else str(Path(spss_exe).parent / "Python3" / "python.exe")
+            )
             return False, (
-                f"SPSS Python3 interpreter not found. "
-                f"Expected at: {Path(spss_exe).parent / 'Python3' / 'python.exe'}"
+                f"SPSS Python3 interpreter not found. Expected near: {hint}"
             )
 
-        spss_home = str(Path(spss_exe).parent)
-        script_content = _make_engine_script(spss_home)
+        spss_home = get_spss_home() or str(Path(spss_exe).parent)
+        site_packages = get_spss_site_packages()
+        script_content = _make_engine_script(spss_home, site_packages)
         script_path = get_temp_dir() / "spss_persistent_engine.py"
         script_path.write_text(script_content, encoding="utf-8")
 
-        env = os.environ.copy()
-        env["PATH"] = spss_home + os.pathsep + env.get("PATH", "")
+        env = build_spss_engine_env()
 
         try:
             self._proc = await asyncio.create_subprocess_exec(
@@ -295,7 +340,7 @@ class SpssEngine:
         Auto-restarts the engine if it has died.
         Concurrent calls are serialised by the internal lock.
         """
-        async with self._lock:
+        async with self._ensure_lock():
             if not self.is_alive():
                 ok, msg = await self._start()
                 if not ok:

@@ -23,6 +23,7 @@ from spss_mcp.oms_image import (
     build_oms_image_block,
     extract_docx_emf,
     extract_html_images,
+    normalize_raster_to_png,
     oms_doc_end_block,
     oms_image_end_block,
     validate_emf,
@@ -104,6 +105,8 @@ async def export_chart(
             if fmt == "EMF":
                 meta = validate_emf(image_path)
             else:
+                # macOS SPSS 27 embeds JPEG in HTML; normalize to PNG first.
+                image_path = normalize_raster_to_png(Path(image_path))
                 meta = validate_image(
                     image_path,
                     expected_format="PNG",

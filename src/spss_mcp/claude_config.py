@@ -10,7 +10,12 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from spss_mcp.config import detect_capabilities, get_startup_timeout, get_timeout
+from spss_mcp.config import (
+    detect_capabilities,
+    get_spss_install_root,
+    get_startup_timeout,
+    get_timeout,
+)
 
 
 def get_entrypoint_config() -> tuple[str, list[str]]:
@@ -26,11 +31,11 @@ def build_mcp_server_config() -> dict:
     executable_command, executable_args = get_entrypoint_config()
     caps = detect_capabilities()
 
-    spss_path = caps.get("spss_path")
-    if spss_path:
-        spss_install = str(Path(spss_path).parent)
-    else:
-        spss_install = "<replace-with-your-spss-install-dir>"
+    spss_install = (
+        caps.get("spss_install_root")
+        or get_spss_install_root()
+        or "<replace-with-your-spss-install-dir>"
+    )
 
     return {
         "type": "stdio",

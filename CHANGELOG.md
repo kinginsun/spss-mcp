@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.1.0] - 2026-10-30
+
+macOS / SPSS 27 fork release（基于上游 1.0.0）。
+
+### Added
+- **macOS 引擎探测与启动**：自动发现 `/Applications/IBM SPSS Statistics *`，定位
+  `Contents/MacOS/stats` 与 `Resources/Python3`，注入 `SPSS_HOME` / `DYLD_*`
+- **JPEG→PNG 出图归一化**：macOS SPSS HTML 内嵌 JPEG 时自动转为 PNG 再做 300 dpi 后处理
+- Mac 探测与 Error SS 误判的单元测试
+
+### Fixed
+- 相对数据路径在 macOS SPSS 上触发 Error #61：统一解析为绝对路径（保留 Windows 盘符路径）
+- ANOVA 表 `Error` 平方和行被误识别为 `Error #nnnn`
+- 纵向样例宽表/长表分数错位；`COMPARE(within_factor)` EMMEANS 语法
+- 持久引擎跨多个 `asyncio.run` 时的 event-loop / Lock 失效
+
+### Changed
+- README / 元数据标明 macOS + Windows；项目 URL 指向本 fork
+
 ## [1.0.0] - 2026-08-05
 
 首个正式版。在 0.3.1 的基础上把真机验证范围拉满，并补齐 Agent 侧消费契约。

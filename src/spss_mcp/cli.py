@@ -85,6 +85,7 @@ def main():
 
         caps = detect_capabilities()
         print("=== SPSS MCP Capability Status ===")
+        print(f"platform   : {caps.get('platform')}")
         print(
             f"pyreadstat : {'OK v' + caps['pyreadstat_version'] if caps['pyreadstat'] else 'NOT FOUND  (pip install pyreadstat)'}"
         )
@@ -93,9 +94,23 @@ def main():
         )
         if caps["spss"]:
             print(f"SPSS batch : OK - {caps['spss_path']}")
+            if caps.get("spss_install_root"):
+                print(f"SPSS root  : {caps['spss_install_root']}")
+            if caps.get("spss_home"):
+                print(f"SPSS home  : {caps['spss_home']}")
+            if caps.get("spss_python"):
+                print(f"SPSS python: OK - {caps['spss_python']}")
+            else:
+                print("SPSS python: NOT FOUND")
         else:
             print("SPSS batch : NOT FOUND")
             print("  Set SPSS_INSTALL_PATH env var to the SPSS installation directory.")
+            print(
+                "  macOS example: /Applications/IBM SPSS Statistics 27"
+            )
+            print(
+                "  Windows example: C:\\Program Files\\IBM\\SPSS Statistics\\32"
+            )
         sys.exit(0)
 
     elif args.command == "setup-info":

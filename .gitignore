@@ -9,6 +9,7 @@ __pycache__/
 build/
 dist/
 *.egg-info/
+src/*.egg-info/
 
 # Virtual environments
 .venv/
@@ -24,6 +25,7 @@ venv/
 .mypy_cache/
 .ruff_cache/
 .coverage
+htmlcov/
 
 # SPSS runtime outputs
 spss_output_*.txt
@@ -38,9 +40,11 @@ Thumbs.db
 .vscode/
 .idea/
 .claude/
+.cursor/
 
-# Audit logs
+# Audit logs & local tooling
 logs/
+graphify-out/
 
 # Local workspace artifacts
 作业/

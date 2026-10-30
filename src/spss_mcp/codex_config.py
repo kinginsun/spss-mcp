@@ -14,7 +14,12 @@ from datetime import datetime
 from pathlib import Path
 
 from spss_mcp.claude_config import get_entrypoint_config
-from spss_mcp.config import detect_capabilities, get_startup_timeout, get_timeout
+from spss_mcp.config import (
+    detect_capabilities,
+    get_spss_install_root,
+    get_startup_timeout,
+    get_timeout,
+)
 
 _MCP_SECTION_RE = re.compile(r"(?ms)^\[mcp_servers\.spss\][^\n]*(?:\n(?!\[).*)*")
 
@@ -43,11 +48,10 @@ def build_codex_entry() -> dict:
     """Build the entry dict (command/args/env) for the Codex MCP server."""
     executable_command, executable_args = get_entrypoint_config()
     caps = detect_capabilities()
-    spss_path = caps.get("spss_path")
     spss_install = (
-        str(Path(spss_path).parent)
-        if spss_path
-        else "<replace-with-your-spss-install-dir>"
+        caps.get("spss_install_root")
+        or get_spss_install_root()
+        or "<replace-with-your-spss-install-dir>"
     )
     return {
         "command": executable_command,

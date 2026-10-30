@@ -22,6 +22,22 @@ from spss_mcp.config import (
 from spss_mcp.output_parser import parse_spss_output
 
 
+def _normalize_spss_path(path: str) -> str:
+    """Forward-slash path for SPSS GET FILE / OMS OUTFILE.
+
+    Relative paths are resolved to absolute (needed on macOS SPSS).  Existing
+    absolute POSIX paths and Windows drive paths (``C:/...``) are left intact
+    so cross-platform tests and syntax templates stay stable.
+    """
+    raw = path.strip().replace("\\", "/")
+    if re.match(r"^[A-Za-z]:/", raw) or raw.startswith("//"):
+        return raw
+    p = Path(path).expanduser()
+    if p.is_absolute():
+        return str(p).replace("\\", "/")
+    return str(p.resolve()).replace("\\", "/")
+
+
 def _build_execution_syntax(
     syntax: str,
     data_file: Optional[str] = None,
@@ -30,7 +46,7 @@ def _build_execution_syntax(
     has_data_open = normalized.upper().startswith("GET FILE=")
     data_line = ""
     if data_file and not has_data_open:
-        data_file_fwd = data_file.replace("\\", "/")
+        data_file_fwd = _normalize_spss_path(data_file)
         data_line = f"GET FILE='{data_file_fwd}'.\n"
     return f"{data_line}{syntax.rstrip()}\n"
 
@@ -143,6 +159,13 @@ async def run_syntax(
         }
 
     if not get_spss_python():
+        import sys as _sys
+
+        expected = (
+            "…/Resources/Python3/bin/python3*"
+            if _sys.platform == "darwin"
+            else str(Path(stats_exe).parent / "Python3" / "python.exe")
+        )
         return {
             "success": False,
             "timed_out": False,
@@ -152,10 +175,7 @@ async def run_syntax(
             "parsed_warnings": [],
             "output_markdown": "",
             "output_raw": "",
-            "error": (
-                "SPSS Python3 interpreter not found. "
-                f"Expected at: {Path(stats_exe).parent / 'Python3' / 'python.exe'}"
-            ),
+            "error": f"SPSS Python3 interpreter not found. Expected near: {expected}",
             "warnings": [],
         }
 
@@ -752,14 +772,16 @@ def build_repeated_measures_anova_syntax(
         raise ValueError("variables count must equal levels")
 
     vars_str = " ".join(variables)
+    file_fwd = _normalize_spss_path(file_path)
     emmeans = (
-        f"  /EMMEANS=TABLES({within_factor_name}) COMPARE ADJ(BONFERRONI)\n"
+        f"  /EMMEANS=TABLES({within_factor_name}) "
+        f"COMPARE({within_factor_name}) ADJ(BONFERRONI)\n"
         if include_pairwise
         else ""
     )
 
     return (
-        f"GET FILE='{file_path}'.\n"
+        f"GET FILE='{file_fwd}'.\n"
         f"GLM {vars_str}\n"
         f"  /WSFACTOR={within_factor_name} {levels} POLYNOMIAL\n"
         f"  /METHOD=SSTYPE(3)\n"

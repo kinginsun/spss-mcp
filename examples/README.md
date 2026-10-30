@@ -17,6 +17,8 @@
 | `data/experiment_study.sav` | 实验：记忆训练前后测 | 120 | `group`（训练/对照）/`pretest`/`posttest`/`gain` |
 | `data/survival_study.sav` | 生存：治疗方案随访 | 150 | `treatment`/`time`/`status`（1=死亡，0=删失） |
 | `data/mediation_study.sav` | 中介：工作自主性→满意度→绩效 | 300 | `autonomy`/`satisfaction`/`performance` |
+| `data/longitudinal_study.sav` | 纵向宽表：3 次重复测量 | 60 | `id`/`group`/`time1`/`time2`/`time3`（给 `spss_repeated_measures_anova`） |
+| `data/long_study.sav` | 纵向长表：id × time | 180 | `id`/`group`/`time`/`score`（给 `spss_mixed` / `spss_genlinmixed`） |
 
 ## 图表清单（examples/charts）
 

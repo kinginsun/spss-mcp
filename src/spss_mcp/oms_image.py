@@ -138,8 +138,36 @@ def find_image_files(output_dir: Path, imageroot: str) -> list[Path]:
     return sorted(
         p
         for p in output_dir.glob(pattern)
-        if p.suffix.lower() in {".png", ".tif", ".tiff", ".emf"}
+        if p.suffix.lower() in {".png", ".jpg", ".jpeg", ".tif", ".tiff", ".emf", ".bmp"}
     )
+
+
+def normalize_raster_to_png(path: Path) -> Path:
+    """Ensure a chart raster is PNG.
+
+    SPSS 32 HTML embeds PNG; macOS SPSS 27 HTML embeds JPEG.  Downstream
+    validation and TIFF conversion expect PNG, so convert other rasters.
+    """
+    if not path.exists():
+        raise ValueError(f"Image file not found: {path}")
+    if path.suffix.lower() == ".png":
+        # Still verify it is actually PNG; fall through to convert if not.
+        pass
+    try:
+        from PIL import Image
+    except ImportError as exc:  # pragma: no cover
+        raise ValueError("Pillow is required for image normalization") from exc
+
+    with Image.open(path) as img:
+        fmt = (img.format or "").upper()
+        if fmt == "PNG" and path.suffix.lower() == ".png":
+            return path
+        png_path = path.with_suffix(".png")
+        rgb = img.convert("RGBA" if img.mode in ("RGBA", "P") else "RGB")
+        rgb.save(png_path, format="PNG")
+    if png_path.resolve() != path.resolve():
+        path.unlink(missing_ok=True)
+    return png_path
 
 
 def _resampling_lanczos():

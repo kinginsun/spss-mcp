@@ -11,6 +11,7 @@ from spss_mcp.oms_image import (
     extract_docx_emf,
     extract_html_images,
     find_image_files,
+    normalize_raster_to_png,
     oms_image_end_block,
     validate_emf,
     validate_image,
@@ -153,3 +154,17 @@ def test_validate_emf_bad_magic(tmp_path):
     bad.write_bytes(b"not an emf file at all")
     with pytest.raises(ValueError, match="Not a valid EMF"):
         validate_emf(bad)
+
+
+def test_normalize_raster_jpeg_to_png(tmp_path):
+    from PIL import Image
+
+    jpg = tmp_path / "chart.jpg"
+    Image.new("RGB", (120, 120), color=(10, 20, 30)).save(jpg, format="JPEG")
+    png = normalize_raster_to_png(jpg)
+    assert png.suffix == ".png"
+    assert png.exists()
+    assert not jpg.exists()
+    with Image.open(png) as img:
+        assert img.format == "PNG"
+        assert img.size == (120, 120)

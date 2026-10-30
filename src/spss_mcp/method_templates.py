@@ -17,7 +17,10 @@ from spss_mcp.method_validation import (
 
 
 def _slash_file(file_path: str) -> str:
-    return file_path.replace(chr(92), "/")
+    """Normalize a data path for SPSS GET FILE (absolute, forward slashes)."""
+    from spss_mcp.spss_runner import _normalize_spss_path
+
+    return _normalize_spss_path(file_path)
 
 
 def render_logistic_regression(file_path: str, params: LogisticRegressionParams) -> str:

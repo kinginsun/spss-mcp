@@ -149,15 +149,16 @@ def make_longitudinal() -> pd.DataFrame:
     return df, labels, var_labels
 
 
-def make_longitudinal_long() -> pd.DataFrame:
-    """Long-format longitudinal data (id x time) for MIXED/GENLINMIXED."""
-    df, labels, var_labels = make_longitudinal()
+def melt_longitudinal(
+    df: pd.DataFrame, labels: dict, var_labels: dict
+) -> tuple[pd.DataFrame, dict, dict, dict]:
+    """Wide ``time1..time3`` → long ``(id, time, score)`` for MIXED/GENLINMIXED."""
     melted = pd.DataFrame(
         {
-            "id": np.repeat(df["id"], 3),
-            "group": np.repeat(df["group"], 3),
+            "id": np.repeat(df["id"].to_numpy(), 3),
+            "group": np.repeat(df["group"].to_numpy(), 3),
             "time": np.tile([1, 2, 3], len(df)),
-            "score": np.concatenate([df["time1"], df["time2"], df["time3"]]),
+            "score": df[["time1", "time2", "time3"]].to_numpy().ravel(),
         }
     )
     long_labels = {
@@ -165,13 +166,19 @@ def make_longitudinal_long() -> pd.DataFrame:
         "time": {1: "第 1 次", 2: "第 2 次", 3: "第 3 次"},
     }
     long_var_labels = {
-        "id": "被试编号",
-        "group": "分组",
+        "id": var_labels.get("id", "被试编号"),
+        "group": var_labels.get("group", "分组"),
         "time": "测量时间点",
         "score": "测量得分",
     }
     measures = {"id": "nominal", "group": "nominal", "time": "nominal"}
     return melted, long_labels, long_var_labels, measures
+
+
+def make_longitudinal_long() -> tuple[pd.DataFrame, dict, dict, dict]:
+    """Long-format longitudinal data (id x time) for MIXED/GENLINMIXED."""
+    df, labels, var_labels = make_longitudinal()
+    return melt_longitudinal(df, labels, var_labels)
 
 
 def make_mediation() -> pd.DataFrame:
@@ -218,20 +225,39 @@ def main() -> None:
         ("experiment_study.sav", make_experiment, "实验"),
         ("survival_study.sav", make_survival, "生存"),
         ("mediation_study.sav", make_mediation, "中介"),
-        ("longitudinal_study.sav", make_longitudinal, "纵向"),
-        ("long_study.sav", make_longitudinal_long, "纵向长格式"),
     ]:
-        df, labels, var_labels, measures = (
-            maker() if len(maker()) == 4 else (*maker(), None)
-        )
+        produced = maker()
+        df, labels, var_labels = produced[0], produced[1], produced[2]
+        measures = produced[3] if len(produced) == 4 else None
         out = _write(name, df, labels, var_labels, measures)
-        # Round-trip check so SPSS can definitely read the file.
         read, _ = pyreadstat.read_sav(out)
         assert list(read.columns) == list(df.columns), name
         print(
             f"wrote {desc}: {out.name} ({out.stat().st_size} bytes, "
             f"{len(df)} rows x {len(df.columns)} cols)"
         )
+
+    # Wide + long longitudinal must share the same RNG draw so scores align.
+    wide_df, wide_labels, wide_var_labels = make_longitudinal()
+    wide_out = _write(
+        "longitudinal_study.sav", wide_df, wide_labels, wide_var_labels
+    )
+    print(
+        f"wrote 纵向: {wide_out.name} ({wide_out.stat().st_size} bytes, "
+        f"{len(wide_df)} rows x {len(wide_df.columns)} cols)"
+    )
+    long_df, long_labels, long_var_labels, measures = melt_longitudinal(
+        wide_df, wide_labels, wide_var_labels
+    )
+    long_out = _write(
+        "long_study.sav", long_df, long_labels, long_var_labels, measures
+    )
+    expected = wide_df[["time1", "time2", "time3"]].to_numpy().ravel()
+    assert (long_df["score"].to_numpy() == expected).all()
+    print(
+        f"wrote 纵向长格式: {long_out.name} ({long_out.stat().st_size} bytes, "
+        f"{len(long_df)} rows x {len(long_df.columns)} cols)"
+    )
 
 
 if __name__ == "__main__":

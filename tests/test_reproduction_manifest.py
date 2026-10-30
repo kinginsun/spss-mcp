@@ -43,38 +43,33 @@ def test_reproduction_manifest_cases_execute_successfully():
     from spss_mcp.spss_engine import get_engine
 
     engine = get_engine()
-    try:
-        _run_cases(manifest)
-    finally:
-        # Release the engine so the trial license seat is not held after the test.
+
+    async def _run_all() -> None:
         try:
-            import asyncio
+            await _run_cases(manifest)
+        finally:
+            # Release the engine so the license seat is not held after the test.
+            await engine.stop()
 
-            asyncio.run(engine.stop())
-        except Exception:
-            pass
+    asyncio.run(_run_all())
 
 
-def _run_cases(manifest: list) -> None:
-    import asyncio as _asyncio
-
+async def _run_cases(manifest: list) -> None:
     for case in manifest:
         if case.get("syntax_kind") == "raw":
-            result = _asyncio.run(
-                run_syntax(
-                    case["params"]["syntax"],
-                    data_file=_resolve_data_file(case["file_path"]),
-                    filter_variable=case["execution_context"].get("filter_variable"),
-                    select_if=case["execution_context"].get("select_if"),
-                )
+            result = await run_syntax(
+                case["params"]["syntax"],
+                data_file=_resolve_data_file(case["file_path"]),
+                filter_variable=case["execution_context"].get("filter_variable"),
+                select_if=case["execution_context"].get("select_if"),
             )
             rendered = result.get("output_markdown") or ""
             if result.get("error"):
                 rendered = f"Error: {result['error']}\n\n{rendered}"
         else:
             tool = getattr(server, case["tool"])
-            rendered = _asyncio.run(
-                tool(file_path=_resolve_data_file(case["file_path"]), **case["params"])
+            rendered = await tool(
+                file_path=_resolve_data_file(case["file_path"]), **case["params"]
             )
 
         assert rendered.startswith("Error:") is False, (

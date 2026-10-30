@@ -11,12 +11,15 @@ from typing import Optional
 
 # ─── Error / warning extraction ───────────────────────────────────────────────
 
+# Real SPSS diagnostics use a hash, e.g. ``>Error # 61`` / ``Warning # 849``.
+# Do NOT make ``#`` optional: ANOVA tables contain an ``Error`` column followed
+# by a sum-of-squares like ``15085.394``, which would false-positive otherwise.
 _ERROR_RE = re.compile(
-    r"^>?\s*Error\s*#?\s*(\d+)[^\n]*\n((?:.*\n)*?)(?=\n|>|\Z)",
+    r"^>?\s*Error\s*#\s*(\d+)\b[^\n]*\n((?:.*\n)*?)(?=\n|>|\Z)",
     re.MULTILINE | re.IGNORECASE,
 )
 _WARNING_RE = re.compile(
-    r"^>?\s*Warning\s*#?\s*(\d+)[^\n]*\n((?:.*\n)*?)(?=\n|>|\Z)",
+    r"^>?\s*Warning\s*#\s*(\d+)\b[^\n]*\n((?:.*\n)*?)(?=\n|>|\Z)",
     re.MULTILINE | re.IGNORECASE,
 )
 
