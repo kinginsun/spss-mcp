@@ -36,11 +36,11 @@ https://github.com/flupke91/spss-studio-mcp
 1. 检查当前系统是否安装 Python 3.10 或更高版本、pip，以及 IBM SPSS Statistics。
 2. 如果当前目录没有项目，请克隆项目；如果项目已经存在，请进入项目目录并检查是否为最新可用代码。
 3. 安装项目依赖：pip install -e ".[dev]"。
-4. 运行 spss-studio-mcp status，并告诉我 pyreadstat、pandas 和 SPSS batch 的状态。
+4. 运行 spss-mcp status，并告诉我 pyreadstat、pandas 和 SPSS batch 的状态。
 5. 根据我当前使用的 Agent 自动配置 MCP：
-   - 如果是 Codex，运行 spss-studio-mcp configure-codex；
-   - 如果是 Claude Code，运行 spss-studio-mcp configure-claude；
-   - 如果客户端不支持自动配置，运行 spss-studio-mcp setup-info，并给出手动配置片段。
+   - 如果是 Codex，运行 spss-mcp configure-codex；
+   - 如果是 Claude Code，运行 spss-mcp configure-claude；
+   - 如果客户端不支持自动配置，运行 spss-mcp setup-info，并给出手动配置片段。
 6. 检查配置文件是否成功写入；如果修改了配置，请提示我重启 Agent。
 7. 安装项目自带的 skills（如果当前项目包含 skills 目录），并说明安装位置。
 8. 重启后，用 examples/data/survey_study.sav 做一次最小测试：读取变量、做描述统计和 Cronbach's alpha 可靠性分析。
@@ -68,7 +68,7 @@ Python 应为 3.10 或更高版本。然后确认 IBM SPSS Statistics 已经安�
 
 ```powershell
 git clone https://github.com/flupke91/spss-studio-mcp.git
-cd spss-studio-mcp
+cd spss-mcp
 pip install -e ".[dev]"
 ```
 
@@ -77,7 +77,7 @@ pip install -e ".[dev]"
 ### 3.3 检查 SPSS 状态
 
 ```powershell
-spss-studio-mcp status
+spss-mcp status
 ```
 
 正常情况下会看到类似结果：
@@ -96,7 +96,7 @@ SPSS batch : OK - C:\Program Files\IBM\SPSS Statistics\32\stats.exe
 如果你使用 Codex：
 
 ```powershell
-spss-studio-mcp configure-codex
+spss-mcp configure-codex
 ```
 
 命令会更新 Codex 的 `~/.codex/config.toml`，并在修改已有文件前创建备份。执行完成后重启 Codex，让它重新加载 MCP 服务器。
@@ -106,7 +106,7 @@ spss-studio-mcp configure-codex
 如果你使用 Claude Code：
 
 ```powershell
-spss-studio-mcp configure-claude
+spss-mcp configure-claude
 ```
 
 命令会更新 Claude Code 的用户配置，并在需要时生成备份。执行完成后重启 Claude Code。
@@ -116,7 +116,7 @@ spss-studio-mcp configure-claude
 先生成配置提示：
 
 ```powershell
-spss-studio-mcp setup-info
+spss-mcp setup-info
 ```
 
 常见的 MCP 配置形式如下：
@@ -125,7 +125,7 @@ spss-studio-mcp setup-info
 {
   "mcpServers": {
     "spss": {
-      "command": "spss-studio-mcp",
+      "command": "spss-mcp",
       "args": ["serve", "--transport", "stdio"]
     }
   }
@@ -343,7 +343,7 @@ SPSS_INSTALL_PATH=C:\Program Files\IBM\SPSS Statistics\32
 
 ```powershell
 $env:SPSS_INSTALL_PATH = "C:\Program Files\IBM\SPSS Statistics\32"
-spss-studio-mcp status
+spss-mcp status
 ```
 
 ### 10.2 调整超时
@@ -373,7 +373,7 @@ SPSS_TIMEOUT=120
 
 1. 是否运行了正确的 `configure-codex` 或 `configure-claude`；
 2. 客户端是否已重启；
-3. `spss-studio-mcp status` 是否能成功运行；
+3. `spss-mcp status` 是否能成功运行；
 4. 客户端配置中的命令是否能在当前终端找到；
 5. 是否有多个旧的 SPSS MCP 配置互相冲突。
 

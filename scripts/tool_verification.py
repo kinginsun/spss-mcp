@@ -124,8 +124,8 @@ async def main() -> int:
         return 1
 
     # import_csv: write a small CSV, import it, then clean up
-    csv_path = Path.home() / "spss_studio_mcp_sample.csv"
-    out_sav = Path.home() / "spss_studio_mcp_sample.sav"
+    csv_path = Path.home() / "spss_mcp_sample.csv"
+    out_sav = Path.home() / "spss_mcp_sample.sav"
     try:
         df, _ = pyreadstat.read_sav(SURVEY)
         df.head(20).to_csv(csv_path, index=False)

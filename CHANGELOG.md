@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1] - 2026-10-30
+
+### Changed
+- 项目 / PyPI / CLI 统一改名为 **`spss-mcp`**（Python 包仍为 `spss_mcp`）
+- GitHub 仓库：`kinginsun/spss-mcp`
+- 推荐安装：`uvx --from git+https://github.com/kinginsun/spss-mcp.git spss-mcp`
+
 ## [1.1.0] - 2026-10-30
 
 macOS / SPSS 27 fork release（基于上游 1.0.0）。
@@ -85,4 +92,4 @@ macOS / SPSS 27 fork release（基于上游 1.0.0）。
 
 ### Added
 - P0 基座：复用 MIT 引擎/runner/CLI、37 工具基线
-- 项目改名 `spss-studio-mcp`、`configure-codex`、CI（black/isort/pytest）
+- 项目改名 `spss-mcp`、`configure-codex`、CI（black/isort/pytest）

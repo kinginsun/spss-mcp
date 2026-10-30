@@ -404,7 +404,7 @@ def get_runtime_config() -> dict:
 
 def get_temp_dir() -> Path:
     """Return the directory for temporary SPSS files, creating it if needed."""
-    default = Path(tempfile.gettempdir()) / "spss-studio-mcp"
+    default = Path(tempfile.gettempdir()) / "spss-mcp"
     temp_dir = Path(os.environ.get("SPSS_TEMP_DIR", str(default)))
     temp_dir.mkdir(parents=True, exist_ok=True)
     return temp_dir

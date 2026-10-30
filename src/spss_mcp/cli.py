@@ -77,7 +77,7 @@ def main():
     if args.command == "version":
         from spss_mcp._version import __version__
 
-        print(f"SPSS Studio MCP v{__version__}")
+        print(f"spss-mcp v{__version__}")
         sys.exit(0)
 
     elif args.command == "status":
@@ -120,7 +120,7 @@ def main():
 
         snippet = {"mcpServers": {"spss": build_mcp_server_config()}}
 
-        print(f"=== SPSS Studio MCP v{__version__} Setup Info ===")
+        print(f"=== spss-mcp v{__version__} Setup Info ===")
         print(f"Command: {executable_command}")
         print(f"Args: {json.dumps(executable_args)}")
         print()

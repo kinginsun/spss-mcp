@@ -1,4 +1,4 @@
-# SPSS Studio MCP (macOS + Windows)
+# spss-mcp (macOS + Windows)
 
 > 让 SPSS 成为 Agent 的「统计引擎 + 制图工厂」：论文级图片、深度结果解析、方法真机验证、安全执行。
 
@@ -40,9 +40,9 @@
 ## 快速开始（macOS）
 
 ```bash
-cd spss-studio-mcp
+cd spss-mcp
 pip install -e ".[dev]"
-spss-studio-mcp status   # 应显示 SPSS batch / python: OK
+spss-mcp status   # 应显示 SPSS batch / python: OK
 ```
 
 可选：在 `.env` 中指定安装目录：
@@ -56,9 +56,16 @@ SPSS_INSTALL_PATH=/Applications/IBM SPSS Statistics 27
 ```json
 {
   "mcpServers": {
-    "spss-studio": {
-      "command": "spss-studio-mcp",
-      "args": ["serve", "--transport", "stdio"],
+    "spss-mcp": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/kinginsun/spss-mcp.git",
+        "spss-mcp",
+        "serve",
+        "--transport",
+        "stdio"
+      ],
       "env": {
         "SPSS_INSTALL_PATH": "/Applications/IBM SPSS Statistics 27"
       }
@@ -70,9 +77,9 @@ SPSS_INSTALL_PATH=/Applications/IBM SPSS Statistics 27
 也可用：
 
 ```bash
-spss-studio-mcp configure-claude
-spss-studio-mcp configure-codex
-spss-studio-mcp setup-info
+spss-mcp configure-claude
+spss-mcp configure-codex
+spss-mcp setup-info
 ```
 
 ## 自然语言示例

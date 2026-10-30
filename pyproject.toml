@@ -3,12 +3,12 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "spss-studio-mcp"
+name = "spss-mcp"
 dynamic = ["version"]
 description = "MCP server for IBM SPSS Statistics (macOS + Windows): paper-ready charts, deep result parsing, and safe syntax execution"
 readme = "README.md"
 authors = [
-    { name = "SPSS Studio MCP Contributors" }
+    { name = "spss-mcp Contributors" }
 ]
 license = {text = "MIT"}
 requires-python = ">=3.10"
@@ -44,9 +44,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/kinginsun/spss-studio-mcp"
-Repository = "https://github.com/kinginsun/spss-studio-mcp"
-Documentation = "https://github.com/kinginsun/spss-studio-mcp/tree/main/docs"
+Homepage = "https://github.com/kinginsun/spss-mcp"
+Repository = "https://github.com/kinginsun/spss-mcp"
+Documentation = "https://github.com/kinginsun/spss-mcp/tree/main/docs"
 Upstream = "https://github.com/flupke91/spss-studio-mcp"
 
 [project.optional-dependencies]
@@ -58,7 +58,7 @@ dev = [
 ]
 
 [project.scripts]
-spss-studio-mcp = "spss_mcp.cli:main"
+spss-mcp = "spss_mcp.cli:main"
 
 [tool.hatch.version]
 path = "src/spss_mcp/_version.py"

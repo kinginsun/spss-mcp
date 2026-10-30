@@ -1,4 +1,4 @@
-# SPSS Studio MCP (macOS + Windows)
+# spss-mcp (macOS + Windows)
 
 > Turn IBM SPSS Statistics into an Agent-ready stats engine and chart factory.
 
@@ -24,7 +24,7 @@ This repository is a fork of [`flupke91/spss-studio-mcp`](https://github.com/flu
 
 ```bash
 pip install -e ".[dev]"
-spss-studio-mcp status
+spss-mcp status
 ```
 
 Optional:
@@ -38,9 +38,16 @@ Cursor `~/.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
-    "spss-studio": {
-      "command": "spss-studio-mcp",
-      "args": ["serve", "--transport", "stdio"],
+    "spss-mcp": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/kinginsun/spss-mcp.git",
+        "spss-mcp",
+        "serve",
+        "--transport",
+        "stdio"
+      ],
       "env": {
         "SPSS_INSTALL_PATH": "/Applications/IBM SPSS Statistics 27"
       }

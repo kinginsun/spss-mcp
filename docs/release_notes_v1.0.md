@@ -4,7 +4,7 @@
 
 ## 概述
 
-spss-studio-mcp 是面向 IBM SPSS Statistics 的 MCP 服务器，为 Codex / Claude /
+spss-mcp 是面向 IBM SPSS Statistics 的 MCP 服务器，为 Codex / Claude /
 Cursor 提供"统计引擎 + 制图工厂 + 结构化消费 + 安全护栏"四合一能力。全部功能
 已在 SPSS Statistics 32.0.0 真机验收。
 
@@ -35,8 +35,8 @@ Cursor 提供"统计引擎 + 制图工厂 + 结构化消费 + 安全护栏"四�
 ## 安装
 
 ```powershell
-pip install spss-studio-mcp
-spss-studio-mcp status
+pip install spss-mcp
+spss-mcp status
 ```
 
 ## 版本

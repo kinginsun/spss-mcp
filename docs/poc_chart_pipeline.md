@@ -83,13 +83,13 @@ P1 的第一里程碑是跑通「GGRAPH → OMS IMAGE → PNG」全链路，并�
 ## 6. 复现
 
 ```powershell
-cd D:\opencode\spss-studio-mcp
+cd D:\opencode\spss-mcp
 python scripts/poc_chart_pipeline.py    # 引擎启动约 15-20s + 两个变体
 python -m spss_mcp.poc_chart --format PNG   # 11 种图表 × PNG
 python -m spss_mcp.poc_chart --format EMF   # 11 种图表 × EMF（boxplot 预期报错提示降级）
 ```
 
-产物（默认 `%TEMP%\spss-studio-mcp\results`）：
+产物（默认 `%TEMP%\spss-mcp\results`）：
 - `poc_histogram_001.png`（1950×1500 @300dpi，由 ~800×500 放大）
 - `poc_histogram_emf_001.emf`（矢量）
 

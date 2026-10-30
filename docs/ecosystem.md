@@ -4,7 +4,7 @@
 
 ## 1. 项目速览（用于收录/发布）
 
-- **名称**：spss-studio-mcp
+- **名称**：spss-mcp
 - **一句话**：让 SPSS 成为 Agent 的"统计引擎 + 制图工厂"：论文级图片、深度结果解析、方法真机验证、安全执行。
 - **类别**：data-analysis / statistics / mcp-server
 - **标签**：`spss` `statistics` `mcp` `chart` `result-parsing` `psychology` `social-science`
@@ -26,7 +26,7 @@
 
 ```yaml
 # lobehub 条目示例
-name: spss-studio-mcp
+name: spss-mcp
 description: >-
   SPSS Studio MCP：论文级图表导出（11 类图 PNG/TIFF/EMF @300dpi）、深度结果
   解析（Markdown+JSON+统计摘要）、37+ 方法真机验证、中介/调节分析与安全执行
@@ -43,7 +43,7 @@ tags: [spss, statistics, chart, mcp]
 - 提交入口：https://www.pulsemcp.com/submit
 - 仓库：https://github.com/flupke91/spss-studio-mcp
 
-- **Name**: spss-studio-mcp
+- **Name**: spss-mcp
 - **Short description**: Paper-ready charts, deep result parsing and safe execution for IBM SPSS Statistics via MCP.
 - **Long description**: 引用 `README.md` 的功能清单与 `docs/technical_report.md` 摘要。
 - **Transport**: stdio

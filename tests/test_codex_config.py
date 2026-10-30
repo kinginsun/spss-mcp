@@ -3,7 +3,7 @@ from pathlib import Path
 from spss_mcp import codex_config
 
 ENTRY = {
-    "command": "spss-studio-mcp",
+    "command": "spss-mcp",
     "args": ["serve", "--transport", "stdio"],
     "env": {
         "SPSS_INSTALL_PATH": r"E:\spss",
@@ -24,7 +24,7 @@ def test_configure_codex_creates_new_config(monkeypatch, tmp_path):
     assert result["entry"] == ENTRY
     text = config_path.read_text(encoding="utf-8")
     assert "[mcp_servers.spss]" in text
-    assert "spss-studio-mcp" in text
+    assert "spss-mcp" in text
     assert "serve" in text
 
 
@@ -45,7 +45,7 @@ def test_configure_codex_merges_existing_config(monkeypatch, tmp_path):
     assert 'model = "gpt-5.2"' in text
     assert "[experimental]" in text
     assert "[mcp_servers.spss]" in text
-    assert "spss-studio-mcp" in text
+    assert "spss-mcp" in text
 
 
 def test_configure_codex_is_idempotent(monkeypatch, tmp_path):
@@ -64,5 +64,5 @@ def test_build_codex_server_block_renders_entry(monkeypatch):
     monkeypatch.setattr(codex_config, "build_codex_entry", lambda: ENTRY)
     block = codex_config.build_codex_server_block()
     assert block.startswith("[mcp_servers.spss]")
-    assert "command = 'spss-studio-mcp'" in block
+    assert "command = 'spss-mcp'" in block
     assert "SPSS_INSTALL_PATH = 'E:\\spss'" in block

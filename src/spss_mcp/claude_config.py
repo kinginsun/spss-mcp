@@ -20,9 +20,9 @@ from spss_mcp.config import (
 
 def get_entrypoint_config() -> tuple[str, list[str]]:
     """Return the preferred command/args pair for launching this MCP server."""
-    installed_entrypoint = shutil.which("spss-studio-mcp")
+    installed_entrypoint = shutil.which("spss-mcp")
     if installed_entrypoint:
-        return "spss-studio-mcp", ["serve", "--transport", "stdio"]
+        return "spss-mcp", ["serve", "--transport", "stdio"]
     return sys.executable, ["-m", "spss_mcp.cli", "serve", "--transport", "stdio"]
 
 

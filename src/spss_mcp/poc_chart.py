@@ -125,7 +125,7 @@ async def _run(image_format: str, width: int, height: int) -> int:
     data_result = await run_syntax(SAMPLE_DATA_SYNTAX)
     if not data_result.get("success"):
         print(f"[FAIL] sample dataset generation: {data_result.get('error')}")
-        print("Is SPSS licensed? Run `spss-studio-mcp status` to check.")
+        print("Is SPSS licensed? Run `spss-mcp status` to check.")
         return 1
 
     failed = False

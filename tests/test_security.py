@@ -40,7 +40,7 @@ def test_validate_data_file_allows_examples():
 
 
 def test_validate_data_file_rejects_external_path():
-    outside = Path.home() / "spss_studio_mcp_outside_test.sav"
+    outside = Path.home() / "spss_mcp_outside_test.sav"
     outside.write_bytes(b"")
     try:
         error = security.validate_data_file(str(outside))

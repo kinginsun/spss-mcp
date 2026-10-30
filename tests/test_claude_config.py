@@ -10,7 +10,7 @@ def test_configure_claude_settings_creates_new_settings_file(monkeypatch, tmp_pa
         "build_mcp_server_config",
         lambda: {
             "type": "stdio",
-            "command": "spss-studio-mcp",
+            "command": "spss-mcp",
             "args": ["serve", "--transport", "stdio"],
             "env": {
                 "SPSS_INSTALL_PATH": r"E:\spss",
@@ -27,7 +27,7 @@ def test_configure_claude_settings_creates_new_settings_file(monkeypatch, tmp_pa
     assert result["status"] == "created"
     assert result["backup_path"] is None
     assert saved["mcpServers"]["spss"]["type"] == "stdio"
-    assert saved["mcpServers"]["spss"]["command"] == "spss-studio-mcp"
+    assert saved["mcpServers"]["spss"]["command"] == "spss-mcp"
     assert saved["mcpServers"]["spss"]["env"]["SPSS_INSTALL_PATH"] == r"E:\spss"
 
 
@@ -37,7 +37,7 @@ def test_configure_claude_settings_merges_existing_settings(monkeypatch, tmp_pat
         "build_mcp_server_config",
         lambda: {
             "type": "stdio",
-            "command": "spss-studio-mcp",
+            "command": "spss-mcp",
             "args": ["serve", "--transport", "stdio"],
             "env": {
                 "SPSS_INSTALL_PATH": r"E:\spss",
@@ -70,7 +70,7 @@ def test_configure_claude_settings_merges_existing_settings(monkeypatch, tmp_pat
     assert Path(result["backup_path"]).exists()
     assert saved["model"] == "claude-opus-4-6-thinking"
     assert saved["mcpServers"]["drawio"]["command"] == "node"
-    assert saved["mcpServers"]["spss"]["command"] == "spss-studio-mcp"
+    assert saved["mcpServers"]["spss"]["command"] == "spss-mcp"
 
 
 def test_configure_claude_settings_rejects_non_object_mcp_servers(tmp_path):

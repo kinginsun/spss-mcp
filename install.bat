@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 echo ========================================
-echo   spss-studio-mcp 一键安装脚本
+echo   spss-mcp 一键安装脚本
 echo ========================================
 echo.
 
@@ -14,7 +14,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo [1/4] 安装 spss-studio-mcp...
+echo [1/4] 安装 spss-mcp...
 pip install -e . >nul 2>&1
 if errorlevel 1 (
     echo [错误] 安装失败，请检查网络连接或 pip 配置
@@ -25,7 +25,7 @@ echo ✓ 安装完成
 
 echo.
 echo [2/4] 验证安装...
-spss-studio-mcp status
+spss-mcp status
 if errorlevel 1 (
     echo [警告] SPSS 未检测到，仅文件工具可用
     echo 如需使用分析工具，请确保已安装 IBM SPSS Statistics
@@ -36,14 +36,14 @@ echo [3/4] 安装 Claude Code 技能...
 set SKILLS_DIR=%USERPROFILE%\.claude\skills
 if not exist "%SKILLS_DIR%" mkdir "%SKILLS_DIR%"
 xcopy /E /I /Y skills\spss-analyst "%SKILLS_DIR%\spss-analyst" >nul 2>&1
-xcopy /E /I /Y skills\spss-studio-mcp-guard "%SKILLS_DIR%\spss-studio-mcp-guard" >nul 2>&1
+xcopy /E /I /Y skills\spss-mcp-guard "%SKILLS_DIR%\spss-mcp-guard" >nul 2>&1
 echo ✓ 技能已安装到 %SKILLS_DIR%
 
 echo.
 echo [4/4] 自动配置 Claude Code...
-spss-studio-mcp configure-claude
+spss-mcp configure-claude
 if errorlevel 1 (
-    echo [错误] 自动配置失败，请手动执行: spss-studio-mcp configure-claude
+    echo [错误] 自动配置失败，请手动执行: spss-mcp configure-claude
     pause
     exit /b 1
 )

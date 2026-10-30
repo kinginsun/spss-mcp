@@ -1,4 +1,4 @@
-# spss-studio-mcp 快速开始
+# spss-mcp 快速开始
 
 > 3 步完成部署（已在 macOS + IBM SPSS Statistics 27 真机验证；上游亦在 Windows + SPSS 32 验证）
 
@@ -7,9 +7,9 @@
 ## 第 1 步：安装
 
 ```bash
-cd spss-studio-mcp
+cd spss-mcp
 pip install -e ".[dev]"
-spss-studio-mcp status   # 应显示 SPSS batch / python: OK
+spss-mcp status   # 应显示 SPSS batch / python: OK
 ```
 
 macOS 若未自动发现安装，可设置：
@@ -21,9 +21,9 @@ export SPSS_INSTALL_PATH="/Applications/IBM SPSS Statistics 27"
 ## 第 2 步：配置 MCP 客户端
 
 ```bash
-spss-studio-mcp configure-codex     # Codex
-spss-studio-mcp configure-claude   # Claude Code
-spss-studio-mcp setup-info         # 打印手动配置片段（含 Cursor）
+spss-mcp configure-codex     # Codex
+spss-mcp configure-claude   # Claude Code
+spss-mcp setup-info         # 打印手动配置片段（含 Cursor）
 ```
 
 Cursor：把 `setup-info` 输出写入 `~/.cursor/mcp.json` 的 `mcpServers`，然后 Reload MCP。
