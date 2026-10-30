@@ -5,7 +5,7 @@
 ### Changed
 - 项目 / PyPI / CLI 统一改名为 **`spss-mcp`**（Python 包仍为 `spss_mcp`）
 - GitHub 仓库：`kinginsun/spss-mcp`
-- 推荐安装：`uvx --from git+https://github.com/kinginsun/spss-mcp.git spss-mcp`
+- 已发布 [PyPI](https://pypi.org/project/spss-mcp/)；文档优先推荐 `pip install spss-mcp` / `uvx spss-mcp`
 
 ## [1.1.0] - 2026-10-30
 

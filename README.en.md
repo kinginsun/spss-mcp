@@ -5,6 +5,7 @@
 **English** ｜ [简体中文](README.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/spss-mcp.svg)](https://pypi.org/project/spss-mcp/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)]()
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-blue.svg)]()
 
@@ -20,11 +21,18 @@ This repository is a fork of [`flupke91/spss-studio-mcp`](https://github.com/flu
 - Safety layer (dangerous syntax blocklist, path allowlist, `dry_run`, audit log)
 - Cross-platform engine (Windows `stats.exe` and macOS app-bundle + bundled Python3 XD)
 
-## Quick start (macOS)
+## Install (PyPI first)
 
 ```bash
-pip install -e ".[dev]"
+pip install spss-mcp
 spss-mcp status
+```
+
+Or run without a permanent install (npx-like):
+
+```bash
+uvx spss-mcp status
+uvx spss-mcp serve
 ```
 
 Optional:
@@ -40,14 +48,7 @@ Cursor `~/.cursor/mcp.json`:
   "mcpServers": {
     "spss-mcp": {
       "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/kinginsun/spss-mcp.git",
-        "spss-mcp",
-        "serve",
-        "--transport",
-        "stdio"
-      ],
+      "args": ["spss-mcp", "serve", "--transport", "stdio"],
       "env": {
         "SPSS_INSTALL_PATH": "/Applications/IBM SPSS Statistics 27"
       }
@@ -55,6 +56,12 @@ Cursor `~/.cursor/mcp.json`:
   }
 }
 ```
+
+## Docs
+
+- [Quick start](QUICK_START.md) (Chinese)
+- [Agent tutorial](docs/tutorial.md) (Chinese)
+- [Examples](examples/README.md)
 
 ## License
 

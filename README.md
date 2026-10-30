@@ -5,6 +5,7 @@
 **简体中文** ｜ [English](README.en.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/spss-mcp.svg)](https://pypi.org/project/spss-mcp/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)]()
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-blue.svg)]()
 
@@ -37,18 +38,27 @@
 - 本机已授权的 **IBM SPSS Statistics**（已在 **27（macOS）** 验证；上游在 **32（Windows）** 验证）
 - macOS：安装包内需含 `Resources/Python3`（XD API）
 
-## 快速开始（macOS）
+## 快速开始
+
+优先从 **PyPI** 安装（无需 clone）：
 
 ```bash
-cd spss-mcp
-pip install -e ".[dev]"
+pip install spss-mcp
+# 或：uv pip install spss-mcp
 spss-mcp status   # 应显示 SPSS batch / python: OK
 ```
 
-可选：在 `.env` 中指定安装目录：
+免安装即跑（类似 `npx`）：
 
 ```bash
-SPSS_INSTALL_PATH=/Applications/IBM SPSS Statistics 27
+uvx spss-mcp status
+uvx spss-mcp serve
+```
+
+macOS 若未自动发现安装，可设置：
+
+```bash
+export SPSS_INSTALL_PATH="/Applications/IBM SPSS Statistics 27"
 ```
 
 配置 Cursor（`~/.cursor/mcp.json`）：
@@ -58,14 +68,7 @@ SPSS_INSTALL_PATH=/Applications/IBM SPSS Statistics 27
   "mcpServers": {
     "spss-mcp": {
       "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/kinginsun/spss-mcp.git",
-        "spss-mcp",
-        "serve",
-        "--transport",
-        "stdio"
-      ],
+      "args": ["spss-mcp", "serve", "--transport", "stdio"],
       "env": {
         "SPSS_INSTALL_PATH": "/Applications/IBM SPSS Statistics 27"
       }
@@ -74,13 +77,17 @@ SPSS_INSTALL_PATH=/Applications/IBM SPSS Statistics 27
 }
 ```
 
-也可用：
+也可用已安装的命令：`"command": "spss-mcp", "args": ["serve", "--transport", "stdio"]`。
+
+辅助配置：
 
 ```bash
 spss-mcp configure-claude
 spss-mcp configure-codex
 spss-mcp setup-info
 ```
+
+开发者本地可编辑安装：`git clone` 后执行 `pip install -e ".[dev]"`。
 
 ## 自然语言示例
 
@@ -115,7 +122,9 @@ IBM SPSS Statistics（本机授权；macOS 或 Windows）
 
 ## 文档
 
+- [快速开始](QUICK_START.md)
 - [Agent 使用教程](docs/tutorial.md)
+- [样例数据与归档图](examples/README.md)
 - [技术报告](docs/technical_report.md)
 - [结果解析](docs/result_parsing.md)
 - [安全层](docs/security.md)

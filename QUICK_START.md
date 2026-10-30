@@ -4,11 +4,12 @@
 
 ---
 
-## 第 1 步：安装
+## 第 1 步：安装（优先 PyPI）
 
 ```bash
-cd spss-mcp
-pip install -e ".[dev]"
+pip install spss-mcp
+# 或：uv pip install spss-mcp
+# 或免安装：uvx spss-mcp status
 spss-mcp status   # 应显示 SPSS batch / python: OK
 ```
 
@@ -26,7 +27,23 @@ spss-mcp configure-claude   # Claude Code
 spss-mcp setup-info         # 打印手动配置片段（含 Cursor）
 ```
 
-Cursor：把 `setup-info` 输出写入 `~/.cursor/mcp.json` 的 `mcpServers`，然后 Reload MCP。
+Cursor（推荐 `uvx`，无需先全局安装）：
+
+```json
+{
+  "mcpServers": {
+    "spss-mcp": {
+      "command": "uvx",
+      "args": ["spss-mcp", "serve", "--transport", "stdio"],
+      "env": {
+        "SPSS_INSTALL_PATH": "/Applications/IBM SPSS Statistics 27"
+      }
+    }
+  }
+}
+```
+
+写入 `~/.cursor/mcp.json` 后 Reload MCP。
 
 ## 第 3 步：使用
 
@@ -43,3 +60,5 @@ Cursor：把 `setup-info` 输出写入 `~/.cursor/mcp.json` 的 `mcpServers`，�
 - `用 examples/data/survival_study.sav 画按 treatment 分组的 KM 生存曲线`
 
 图表工具返回 1950×1500 @300dpi 文件路径，可直接用于投稿。
+
+更多场景 Prompt、纵向宽表/长表约定与排错见 [docs/tutorial.md](docs/tutorial.md)；样例数据与归档图见 [examples/README.md](examples/README.md)。
