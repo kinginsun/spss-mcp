@@ -8,6 +8,7 @@ __pycache__/
 # Build artifacts
 build/
 dist/
+dist/.gitignore
 *.egg-info/
 src/*.egg-info/
 

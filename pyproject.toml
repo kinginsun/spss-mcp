@@ -66,6 +66,17 @@ path = "src/spss_mcp/_version.py"
 [tool.hatch.build.targets.wheel]
 packages = ["src/spss_mcp"]
 
+[tool.hatch.build.targets.sdist]
+exclude = [
+  "/.github",
+  "/examples/charts",
+  "/docs/diagrams",
+  "/graphify-out",
+  "/logs",
+  "/dist",
+  "/build",
+]
+
 [tool.black]
 line-length = 88
 target-version = ["py310"]
