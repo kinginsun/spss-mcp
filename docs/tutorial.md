@@ -1,428 +1,392 @@
-# SPSS Studio MCP：给 Agent 的傻瓜式使用教程
+# spss-mcp：给 Agent 的使用教程
 
-> 把 SPSS 变成 Agent 可以调用的统计引擎和制图工厂。
+> 把本机 IBM SPSS Statistics 变成 Agent 可调用的「统计引擎 + 制图工厂」。
 >
-> 适用版本：v0.3+ ｜ 推荐环境：Windows 10/11、Python 3.10+、IBM SPSS Statistics 20–32
+> 适用版本：**v1.1+** ｜ 平台：**macOS / Windows** ｜ Python 3.10+ ｜ IBM SPSS Statistics（已在 **macOS 27**、上游 **Windows 32** 验证）
 
-这篇教程专门写给第一次接触 MCP、SPSS-MCP 或 Agent 工作流的用户。你不需要先学会 MCP，也不需要记住工具名称。完成安装后，直接用自然语言告诉 Agent：数据在哪里、你想回答什么问题、希望得到什么结果。
+完成安装后，你不需要记住工具名。直接用自然语言告诉 Agent：数据在哪、想回答什么问题、希望得到什么结果。
 
-## 1. 先理解它能做什么
+## 1. 它能做什么
 
-传统流程通常是：打开 SPSS → 导入数据 → 找菜单 → 设置参数 → 运行 → 整理表格 → 导出图片 → 写结果。
+传统流程：打开 SPSS → 导入数据 → 找菜单 → 设参数 → 运行 → 整理表 → 导出图 → 写结果。
 
-SPSS Studio MCP 把其中大量重复操作交给 Agent：
+spss-mcp 把大量重复步骤交给 Agent：
 
-- Agent 读取 `.sav` / `.zsav` 数据，检查变量、标签、缺失值和样本量；
-- Agent 根据研究问题选择描述统计、t 检验、方差分析、回归、中介、调节、生存分析等方法；
-- MCP 调用真实 IBM SPSS Statistics 引擎执行分析，而不是只凭语言模型猜结果；
-- 返回 Markdown 表格、结构化 JSON、统计摘要、`.sps` 语法和 `.spv` Viewer 文件；
-- 根据需要导出 PNG、TIFF 或 EMF 格式的 300 dpi 图表；
-- 对危险语法、数据目录和执行过程进行安全检查并写入审计日志。
+- 读取 `.sav` / `.zsav`，检查变量、标签、缺失值与样本量；
+- 按研究问题选用描述 / t / ANOVA / 回归 / 因子 / 信度 / 生存 / 混合模型 / 中介调节等；
+- **调用真实 SPSS 引擎**执行（不是让模型猜数值）；
+- 返回 Markdown 表、结构化 JSON、统计摘要、`.sps` 语法与 `.spv`；
+- 按需导出 PNG / TIFF / EMF（默认 1950×1500 @300 dpi）；
+- 对危险语法与数据路径做安全检查，并写审计日志。
 
-它适合论文分析、问卷研究、实验数据、医学随访、课程作业、研究助理和需要重复执行的统计流程。
+适合论文分析、问卷/实验、医学随访、课程作业，以及需要可复现的重复流程。
 
-## 2. 最快方式：把这段话发给你的 Agent
-
-下面这段可以直接复制给 Codex、Claude Code 或其他支持 MCP 的 Agent。建议把项目目录、数据目录和当前使用的客户端说清楚。
+## 2. 最快方式：把这段话发给 Agent
 
 ```text
-请帮我安装并配置 SPSS Studio MCP，让你可以直接调用 IBM SPSS Statistics 做统计分析和论文级出图。
+请帮我安装并配置 spss-mcp，让你可以直接调用本机 IBM SPSS Statistics 做统计分析和论文级出图。
 
 项目地址：
-https://github.com/flupke91/spss-studio-mcp
+https://github.com/kinginsun/spss-mcp
 
 请按以下顺序执行，不要跳过检查：
 
-1. 检查当前系统是否安装 Python 3.10 或更高版本、pip，以及 IBM SPSS Statistics。
-2. 如果当前目录没有项目，请克隆项目；如果项目已经存在，请进入项目目录并检查是否为最新可用代码。
-3. 安装项目依赖：pip install -e ".[dev]"。
-4. 运行 spss-mcp status，并告诉我 pyreadstat、pandas 和 SPSS batch 的状态。
-5. 根据我当前使用的 Agent 自动配置 MCP：
-   - 如果是 Codex，运行 spss-mcp configure-codex；
-   - 如果是 Claude Code，运行 spss-mcp configure-claude；
-   - 如果客户端不支持自动配置，运行 spss-mcp setup-info，并给出手动配置片段。
-6. 检查配置文件是否成功写入；如果修改了配置，请提示我重启 Agent。
-7. 安装项目自带的 skills（如果当前项目包含 skills 目录），并说明安装位置。
-8. 重启后，用 examples/data/survey_study.sav 做一次最小测试：读取变量、做描述统计和 Cronbach's alpha 可靠性分析。
-9. 最后告诉我：安装是否成功、可调用哪些工具、示例结果文件在哪里，以及我下一步可以怎样用自然语言提出分析需求。
+1. 检查 Python 3.10+、pip，以及本机是否已安装并授权 IBM SPSS Statistics。
+2. 优先从 PyPI 安装：`pip install spss-mcp`（开发者才需要 clone + `pip install -e ".[dev]"`）。
+3. 运行 `spss-mcp status`，报告 pyreadstat、pandas、SPSS batch / python 状态。
+4. 按我当前客户端配置 MCP：
+   - Codex → spss-mcp configure-codex
+   - Claude Code → spss-mcp configure-claude
+   - Cursor 或其他 → 使用 `uvx spss-mcp serve`，或 `spss-mcp setup-info`
+5. 确认配置已写入；若改了配置，提示我重启 / Reload MCP。
+6. 用公开样例或我提供的 `.sav` 做最小测试：读变量、描述统计。
+7. 告诉我：是否成功、下一步可用哪些自然语言请求。
 
-遇到错误时，请先判断是 Python、依赖、SPSS 路径、授权、MCP 配置还是数据路径问题，再给出最小修复方案。不要删除我的数据，不要修改原始数据文件。
+排错时先判断是 Python、依赖、SPSS 路径、授权、MCP 配置还是数据路径；不要删除或覆盖我的原始数据。
 ```
 
-如果 Agent 没有权限执行命令，就让它逐条解释命令，你在终端执行后把输出粘贴回来。Agent 可以根据输出继续完成配置和排错。
+若 Agent 不能执行命令，让它逐条解释，你在终端跑完后把输出贴回去。
 
-## 3. 手动安装：一步一步照做
+## 3. 手动安装
 
-### 3.1 检查环境
+### 3.1 环境
 
-在 PowerShell 中执行：
-
-```powershell
-python --version
+```bash
+python --version   # 需 3.10+
 pip --version
 ```
 
-Python 应为 3.10 或更高版本。然后确认 IBM SPSS Statistics 已经安装并且授权可用。SPSS Studio MCP 的文件读取工具可以在没有 SPSS 引擎时工作，但真正的统计分析和图表导出需要 SPSS。
+确认本机已安装并授权 **IBM SPSS Statistics**。无引擎时仍可读 `.sav` 元数据；分析与出图需要 SPSS。
 
-### 3.2 获取项目并安装
+| 平台 | 典型安装位置 |
+|------|----------------|
+| macOS | `/Applications/IBM SPSS Statistics 27`（需含 `Resources/Python3` XD） |
+| Windows | `C:\Program Files\IBM\SPSS Statistics\32`（`stats.exe`） |
 
-```powershell
-git clone https://github.com/flupke91/spss-studio-mcp.git
+### 3.2 安装（优先 PyPI）
+
+```bash
+pip install spss-mcp
+# 或：uv pip install spss-mcp
+```
+
+免安装即跑（类似 npx）：
+
+```bash
+uvx spss-mcp status
+uvx spss-mcp serve
+```
+
+开发者本地可编辑安装：
+
+```bash
+git clone https://github.com/kinginsun/spss-mcp.git
 cd spss-mcp
 pip install -e ".[dev]"
 ```
 
-如果项目已经在本机，直接进入项目目录再执行安装命令即可。开发依赖包含测试和格式化工具；只想运行服务时，也可以使用 `pip install -e .`。
+### 3.3 检查状态
 
-### 3.3 检查 SPSS 状态
-
-```powershell
+```bash
 spss-mcp status
 ```
 
-正常情况下会看到类似结果：
+macOS 正常示例：
 
 ```text
 === SPSS MCP Capability Status ===
-pyreadstat : OK v...
-pandas     : OK v...
-SPSS batch : OK - C:\Program Files\IBM\SPSS Statistics\32\stats.exe
+pyreadstat : OK ...
+pandas     : OK ...
+SPSS batch : OK - /Applications/IBM SPSS Statistics 27/Contents/MacOS/stats
+SPSS python: OK - .../Resources/Python3/...
 ```
 
-如果显示 `SPSS batch : NOT FOUND`，先不要急着重装依赖。按照第 8 节设置 `SPSS_INSTALL_PATH`，再重新运行 `status`。
+Windows 则指向 `...\stats.exe`。若显示 `NOT FOUND`，先按第 10 节设置 `SPSS_INSTALL_PATH`。
 
-### 3.4 自动配置 Codex
+### 3.4 配置客户端
 
-如果你使用 Codex：
-
-```powershell
-spss-mcp configure-codex
+```bash
+spss-mcp configure-codex      # Codex → ~/.codex/config.toml（会先备份）
+spss-mcp configure-claude     # Claude Code 用户配置
+spss-mcp setup-info           # 打印手动片段（含 Cursor）
 ```
 
-命令会更新 Codex 的 `~/.codex/config.toml`，并在修改已有文件前创建备份。执行完成后重启 Codex，让它重新加载 MCP 服务器。
-
-### 3.5 自动配置 Claude Code
-
-如果你使用 Claude Code：
-
-```powershell
-spss-mcp configure-claude
-```
-
-命令会更新 Claude Code 的用户配置，并在需要时生成备份。执行完成后重启 Claude Code。
-
-### 3.6 手动配置其他客户端
-
-先生成配置提示：
-
-```powershell
-spss-mcp setup-info
-```
-
-常见的 MCP 配置形式如下：
+Cursor（`~/.cursor/mcp.json`）示例：
 
 ```json
 {
   "mcpServers": {
-    "spss": {
-      "command": "spss-mcp",
-      "args": ["serve", "--transport", "stdio"]
+    "spss-mcp": {
+      "command": "uvx",
+      "args": ["spss-mcp", "serve", "--transport", "stdio"],
+      "env": {
+        "SPSS_INSTALL_PATH": "/Applications/IBM SPSS Statistics 27"
+      }
     }
   }
 }
 ```
 
-不同客户端的配置文件位置和字段名称可能不同，以客户端文档和 `setup-info` 输出为准。配置完成后必须重启客户端，否则它可能仍然看不到新的工具。
+本地已 `pip install -e .` 时，也可把 `command` 设为 `spss-mcp`，`args` 为 `["serve", "--transport", "stdio"]`。改完后 **Reload MCP / 重启客户端**。
 
-## 4. 第一次验证：让 Agent 做一个最小任务
+## 4. 第一次验证
 
-重启客户端后，先不要直接拿自己的论文数据测试。把下面这段发给 Agent：
+重启后先跑最小任务，不要立刻上正式论文数据：
 
 ```text
 请先调用 spss_check_status，告诉我当前有哪些能力可用。
 然后检查 examples/data/survey_study.sav：
-1. 列出变量名、变量标签、变量类型和缺失值信息；
-2. 预览前 10 行数据；
-3. 对 engagement_total 做均值、标准差、最小值、最大值和样本量；
-4. 对 q1 到 q12 做 Cronbach's alpha 可靠性分析；
-5. 不要修改原始数据，只返回分析结果和生成文件的路径。
+1. 列出变量名、标签、类型和缺失值信息；
+2. 预览前 10 行；
+3. 对 engagement_total 做均值、标准差、最小/最大与样本量；
+4. 对 q1 到 q12 做 Cronbach's alpha；
+5. 不要修改原始数据，只返回分析结果与生成文件路径。
 ```
 
-你应该得到：
+成功时应看到：变量信息、描述表、信度结果、统计摘要，以及可选的 `.sps` / `.spv` 路径。
 
-- 数据文件和变量信息；
-- 描述统计表；
-- 可靠性统计结果；
-- 自动生成的统计摘要；
-- 需要时附带 `.sps` 和 `.spv` 文件路径。
+## 5. 给 Agent 下指令
 
-如果这一步成功，说明 Agent 已经能发现 MCP 工具并调用 SPSS Studio MCP。
+高质量请求至少包含：
 
-## 5. 给 Agent 下指令的正确姿势
+1. **数据文件**路径；
+2. **研究问题**；
+3. **变量角色**（因变量 / 自变量 / 分组 / 中介 / 调节 / 时间 / 个体 ID）；
+4. **分析要求**（前提检验、效应量、事后比较、图）；
+5. **交付格式**（论文结果段、表、语法、图、JSON）。
 
-不要只说“帮我分析一下”。高质量的请求至少包含五项：
-
-1. **数据文件**：明确 `.sav` 文件路径；
-2. **研究问题**：你想比较、预测、解释或描述什么；
-3. **变量角色**：因变量、自变量、分组变量、中介变量、调节变量；
-4. **分析要求**：是否需要前提检验、效应量、事后比较和可视化；
-5. **交付格式**：论文结果段、Markdown 表格、语法文件、图片或结构化 JSON。
-
-可以复用这个通用模板：
+通用模板：
 
 ```text
 请分析 [数据文件路径]。
 
-研究问题：[用一句话说明想回答的问题]
-因变量：[变量名和含义]
-自变量或分组变量：[变量名和含义]
+研究问题：[一句话]
+因变量：[变量名与含义]
+自变量或分组：[变量名与含义]
 其他变量：[协变量 / 中介 / 调节 / 时间 / 个体 ID]
 
 请按以下流程执行：
-1. 先检查样本量、变量类型、缺失值、异常值和必要的前提条件；
-2. 如果我的统计方法不合适，请解释原因并选择更合适的方法；
-3. 执行分析并报告关键统计量、p 值、置信区间和效应量；
-4. 给出适合论文结果部分的中文解释，但不要把相关关系写成因果关系；
-5. 保存可复现的 SPSS syntax，并保留原始数据不变；
-6. 如果适合，请生成论文级图片，并告诉我图片路径和格式。
+1. 先检查样本量、类型、缺失、异常值与必要前提；
+2. 若方法不合适，请说明并改用更合适方法；
+3. 报告估计值、标准误、置信区间、检验统计量、自由度、p 与效应量；
+4. 给出适合论文结果部分的中文解释（相关勿写成因果）；
+5. 保存可复现的 SPSS syntax，不覆盖原始数据；
+6. 若适合，生成论文级图片并返回绝对路径。
 ```
 
-## 6. 常见研究场景
+## 6. 常见研究场景（项目样例）
 
-### 6.1 问卷：描述统计、信度和组间差异
+样例数据与归档图说明见 [examples/README.md](../examples/README.md)。
+
+### 6.1 问卷：信度与组间差异
 
 ```text
 请分析 examples/data/survey_study.sav。
-先检查样本量、变量标签、缺失值和 q1-q12 的取值范围。
-然后完成：
-1. 对 q1-q12 做 Cronbach's alpha 可靠性分析；
-2. 对 engagement_total 做描述统计和正态性检查；
-3. 按 gender 比较 engagement_total，先判断使用独立样本 t 检验是否合适；
-4. 按 major 比较 engagement_total，使用单因素方差分析并在需要时做事后比较；
-5. 绘制 engagement_total 的直方图和 Q-Q 图；
-6. 输出表格、统计摘要、论文结果段、SPSS syntax 和图像路径。
+先检查样本量、变量标签、缺失值和 q1-q12 取值范围。然后：
+1. 对 q1-q12 做 Cronbach's alpha；
+2. 对 engagement_total 做描述统计与正态性检查；
+3. 按 gender 比较 engagement_total（判断是否适合独立样本 t）；
+4. 按 major 做单因素 ANOVA，需要时事后比较；
+5. 绘制 engagement_total 直方图和 Q-Q 图；
+6. 输出表格、摘要、论文结果段、syntax 与图像路径。
 ```
 
-### 6.2 实验：前后测和组间比较
+### 6.2 实验：前后测与组间比较
 
 ```text
-请分析 examples/data/experiment_study.sav。
-变量为 group、pretest、posttest 和 gain。
-请先检查 group 的编码和每组样本量，然后：
-1. 报告两组 pretest 和 posttest 的描述统计；
-2. 比较两组 posttest 是否存在差异；
-3. 比较两组 gain 是否存在差异；
-4. 对同一被试的 pretest 与 posttest 做配对样本 t 检验；
-5. 报告均值差、95% CI、t、df、p 和效应量；
-6. 生成按 group 分组的 posttest 箱线图；
-7. 写出谨慎、适合论文的结果解释。
+请分析 examples/data/experiment_study.sav（group、pretest、posttest、gain）。
+先检查 group 编码与每组样本量，然后：
+1. 两组 pretest / posttest 描述统计；
+2. 比较两组 posttest 与 gain；
+3. 对 pretest 与 posttest 做配对 t；
+4. 报告均值差、95% CI、t、df、p 与效应量；
+5. 生成按 group 分组的 posttest 箱线图；
+6. 写出谨慎的论文结果解释。
 ```
 
-### 6.3 相关和回归：避免把相关写成因果
+### 6.3 相关与回归
 
 ```text
-请对 examples/data/mediation_study.sav 做相关和回归分析。
-研究问题是 autonomy、satisfaction 与 performance 的关系。
-请先检查变量分布和异常值，再完成：
+请对 examples/data/mediation_study.sav 做相关和回归。
+变量：autonomy、satisfaction、performance。
 1. Pearson 相关矩阵；
-2. 以 performance 为因变量、autonomy 和 satisfaction 为预测变量的多元线性回归；
-3. 报告 R²、调整 R²、模型检验、标准化系数、置信区间和共线性诊断；
-4. 绘制 satisfaction 与 performance 的散点图；
-5. 用“相关”和“预测”表述结果，不要直接声称存在因果关系。
+2. performance ~ autonomy + satisfaction 多元回归；
+3. 报告 R²、调整 R²、模型检验、标准化系数、CI 与共线性；
+4. 绘制 satisfaction–performance 散点图；
+5. 用「相关 / 预测」表述，不要声称因果。
 ```
 
-### 6.4 中介分析
+### 6.4 中介
 
 ```text
 请对 examples/data/mediation_study.sav 做中介分析：
 X = autonomy，M = satisfaction，Y = performance。
-
-请先检查三个变量的样本量、缺失值和基本分布，再调用合适的中介分析工具。
-报告总效应、直接效应、间接效应 a×b、Sobel 检验和每一步回归结果。
-请明确说明这个分析能支持的统计结论和不能支持的因果结论，
-并保存完整的 SPSS syntax 与结果文件。
+检查样本量与分布后调用中介工具；报告总/直接/间接效应、Sobel 与分步回归。
+说明可支持的统计结论与不能支持的因果结论；保存 syntax 与结果文件。
 ```
 
-### 6.5 调节分析
+### 6.5 调节
 
 ```text
 请对 examples/data/mediation_study.sav 做调节分析：
 X = autonomy，W = satisfaction，Y = performance。
-
-请对 X 和 W 做中心化，建立包含主效应和 X×W 交互项的回归模型。
-报告交互项系数、标准误、t、p、置信区间和模型解释度变化。
-如果交互项显著，请解释它表示的调节方向；如果不显著，请明确说不支持调节效应。
+对 X、W 中心化，建立含 X×W 交互的回归；报告交互项与模型解释度变化。
 不要只根据主效应判断调节成立。
 ```
 
-### 6.6 生存分析
+### 6.6 生存
 
 ```text
-请分析 examples/data/survival_study.sav。
-变量为 treatment、time 和 status，其中 status=1 表示事件发生。
-请完成：
-1. 检查 time 和 status 的编码；
-2. 按 treatment 绘制 Kaplan-Meier 生存曲线；
-3. 进行组间生存比较；
-4. 报告中位生存时间、置信区间和 log-rank 结果；
-5. 说明删失数据如何被处理；
-6. 输出论文级 PNG 图片和可复现语法。
+请分析 examples/data/survival_study.sav（treatment、time、status；status=1 为事件）。
+1. 检查编码；2. 按 treatment 画 KM 曲线；3. 组间比较；
+4. 报告中位生存时间、CI 与 log-rank；5. 说明删失处理；
+6. 输出论文级 PNG 与可复现语法。
+```
+
+### 6.7 纵向：宽表 RM-ANOVA vs 长表 MIXED
+
+项目提供两套对齐的纵向样例（勿混用工具期望的表结构）：
+
+| 文件 | 结构 | 适用工具 |
+|------|------|----------|
+| `examples/data/longitudinal_study.sav` | 宽表：`time1`/`time2`/`time3` | `spss_repeated_measures_anova` |
+| `examples/data/long_study.sav` | 长表：`id`/`time`/`score` | `spss_mixed` / `spss_genlinmixed` |
+
+```text
+请对 examples/data/longitudinal_study.sav 做重复测量 ANOVA：
+组内因子为 time1–time3，分组变量 group；报告球形性、主效应与必要的事后比较。
+```
+
+```text
+请对 examples/data/long_study.sav 做混合模型：
+score ~ group + time，随机截距 subject=id；报告固定效应与模型摘要。
 ```
 
 ## 7. 论文级出图
 
-SPSS Studio MCP 提供多类 `spss_chart_*` 工具。常用选择如下：
+常用 `spss_chart_*`：
 
-| 工具 | 适用场景 |
-|------|----------|
-| `spss_chart_histogram_density` | 连续变量分布和正态性展示 |
-| `spss_chart_qqplot` | 正态 Q-Q 检查 |
-| `spss_chart_scatter` | 两个连续变量的关系 |
-| `spss_chart_bar_error` | 分组均值和 95% CI |
-| `spss_chart_boxplot` | 组间分布、异常值和中位数 |
+| 工具 | 场景 |
+|------|------|
+| `spss_chart_histogram_density` | 连续变量分布 + 正态密度 |
+| `spss_chart_qqplot` | 正态 Q-Q |
+| `spss_chart_scatter` | 两连续变量关系 |
+| `spss_chart_bar_error` | 分组均值 + 95% CI |
+| `spss_chart_boxplot` | 组间分布 / 异常值 |
 | `spss_chart_errorbar` | 均值与置信区间 |
-| `spss_chart_line` / `spss_chart_area` | 时间序列或重复测量趋势 |
-| `spss_chart_km_curve` | Kaplan-Meier 生存曲线 |
-
-直接给 Agent 的出图请求：
+| `spss_chart_line` / `spss_chart_area` | 趋势 / 重复测量 |
+| `spss_chart_km_curve` | Kaplan-Meier |
 
 ```text
-请使用 examples/data/survey_study.sav。
-以 engagement_total 为变量，绘制论文级直方图并叠加正态密度曲线。
-要求：PNG、300 dpi、1950×1500 像素，中文标题为“学习投入总分分布”。
-检查图片是否成功生成，返回绝对路径，并说明该图适合放在论文哪个部分。
+请使用 examples/data/survey_study.sav，对 engagement_total 画论文级直方图并叠加正态密度。
+要求：PNG、300 dpi、1950×1500；返回绝对路径。
 ```
 
-图片工具默认返回可用的文件路径。投稿前仍应检查字体、坐标轴标题、图例、分辨率和期刊格式要求。
+macOS 上 HTML 偶发内嵌 JPEG 时，工具会自动转为 PNG 再做 300 dpi 后处理。投稿前仍请检查字体、轴标题与期刊格式。
 
-## 8. 输出文件和复现
+## 8. 输出与复现
 
-一次分析可能产生以下结果：
+| 产物 | 用途 |
+|------|------|
+| Markdown / JSON | 阅读与 Agent 消费 |
+| `.sps` / `.spv` | 复现与 Viewer |
+| PNG / TIFF / EMF | 论文与排版 |
+| `logs/audit.jsonl` | 安全审计 |
 
-| 文件或字段 | 用途 |
-|------------|------|
-| Markdown | 直接阅读和复制到笔记或报告 |
-| JSON | 供脚本、网页或后续 Agent 消费 |
-| `.sps` | 保存实际执行的 SPSS 语法，便于复现 |
-| `.spv` | 在 SPSS Viewer 中查看完整输出 |
-| PNG / TIFF / EMF | 论文、汇报或进一步排版 |
-| `logs/audit.jsonl` | 记录执行过程和安全审计信息 |
+派生变量请另存，勿覆盖原始文件。每次提交通常重新 `GET FILE`，临时 `COMPUTE` 不会跨会话保留。
 
-涉及数据变换时，明确要求 Agent 另存为新文件：
+## 9. 安全建议
 
-```text
-可以生成派生变量，但不要覆盖原始 data.sav。
-请把变换后的数据保存为 data_derived.sav，并在结果中列出每个新变量的计算规则。
-后续分析只使用 data_derived.sav。
-```
+- 先读元数据，再跑复杂分析；
+- 勿向不可信客户端暴露含敏感标识的数据；
+- 原始数据只读，派生另存；
+- 陌生语法先 `dry_run=True`；
+- 用 `SPSS_ALLOWED_DIRS` 限制可访问目录。
 
-注意：每次提交通常会重新载入数据文件，上一轮 `COMPUTE` 生成的临时变量不会自动保留。需要保留时，使用 `SAVE OUTFILE=...` 保存为新的数据集。
+默认拦截 `HOST`、`ERASE`、`DELETE FILE` 等。详见 [security.md](security.md)。
 
-## 9. 安全使用建议
+## 10. 路径与环境变量
 
-- 先让 Agent 读取元数据，再允许它执行复杂分析；
-- 不要把含有身份证号、银行卡号、密码或其他不必要的敏感信息的数据上传给不可信的客户端；
-- 要求 Agent 不覆盖原始数据，并把派生数据保存到新文件；
-- 对陌生语法先使用 `dry_run=True` 校验，不要直接执行；
-- 保留 `.sps` 语法和审计日志，方便复核；
-- 将允许访问的数据目录限制在项目目录或专门的分析目录。
-
-项目默认会拦截 `HOST`、`ERASE`、`DELETE FILE` 等危险命令，并限制数据文件路径。详细规则见 [安全层说明](security.md)。
-
-## 10. SPSS 路径和环境变量
-
-### 10.1 设置 SPSS 安装路径
-
-如果自动检测失败，在项目目录创建 `.env` 文件：
+复制 `.env.example` 为 `.env`：
 
 ```ini
-SPSS_INSTALL_PATH=C:\Program Files\IBM\SPSS Statistics\32
+# macOS
+SPSS_INSTALL_PATH=/Applications/IBM SPSS Statistics 27
+
+# Windows
+# SPSS_INSTALL_PATH=C:\Program Files\IBM\SPSS Statistics\32
+
+SPSS_STARTUP_TIMEOUT=300
+SPSS_TIMEOUT=120
+# SPSS_ALLOWED_DIRS=/path/to/data;/another/dir
 ```
 
-也可以在当前 PowerShell 会话中临时设置：
+临时会话：
 
-```powershell
-$env:SPSS_INSTALL_PATH = "C:\Program Files\IBM\SPSS Statistics\32"
+```bash
+# macOS / Linux
+export SPSS_INSTALL_PATH="/Applications/IBM SPSS Statistics 27"
 spss-mcp status
 ```
 
-### 10.2 调整超时
-
-首次启动 SPSS 引擎通常比后续调用慢。如果首次启动超时，在 `.env` 中增加：
-
-```ini
-SPSS_STARTUP_TIMEOUT=300
-SPSS_TIMEOUT=120
+```powershell
+# Windows
+$env:SPSS_INSTALL_PATH = "C:\Program Files\IBM\SPSS Statistics\32"
+spss-mcp status
 ```
-
-`SPSS_STARTUP_TIMEOUT` 控制引擎首次启动，`SPSS_TIMEOUT` 控制单次分析任务。复杂模型可以适当提高后者。
-
-### 10.3 设置数据白名单
-
-如果数据放在项目目录之外，可以设置允许访问的目录。具体格式以项目当前版本的配置说明为准；推荐只加入专门的研究数据目录，不要直接放开整个磁盘。
 
 ## 11. 常见问题
 
 ### `SPSS batch : NOT FOUND`
 
-先确认 `stats.exe` 的真实位置，再设置 `SPSS_INSTALL_PATH`。设置后重新打开终端或重新运行 `status`。
+确认安装目录后设置 `SPSS_INSTALL_PATH`（macOS 指向 `.app` 上级目录或安装根；Windows 指向含 `stats.exe` 的目录），新开终端再 `status`。
 
-### Agent 看不到 SPSS 工具
+### Agent 看不到工具
 
-依次检查：
+检查 `configure-*` / `mcp.json`、是否 Reload、本机 `spss-mcp status`、PATH 中能否找到命令、是否有旧配置冲突。
 
-1. 是否运行了正确的 `configure-codex` 或 `configure-claude`；
-2. 客户端是否已重启；
-3. `spss-mcp status` 是否能成功运行；
-4. 客户端配置中的命令是否能在当前终端找到；
-5. 是否有多个旧的 SPSS MCP 配置互相冲突。
+### 首次很慢或超时
 
-### 首次分析很慢或超时
+首次启动引擎约 15–20 秒；提高 `SPSS_STARTUP_TIMEOUT` / `SPSS_TIMEOUT`；避免多开 SPSS 会话。
 
-第一次启动引擎约需 15–20 秒，之后通常会保持常驻。不要同时打开多个 SPSS 会话；必要时提高 `SPSS_STARTUP_TIMEOUT` 或 `SPSS_TIMEOUT`。
+### 未授权 / 出图失败
 
-### 提示未授权或图片导出失败
+确认授权有效；结束残留的 `stats` / `spssengine` 进程后再试。
 
-确认 IBM SPSS Statistics 授权有效，并检查是否有残留的 `stats.exe`、`spssengine` 或 `spsswers.dll` 进程占用试用席位。结束残留进程后重新尝试，并避免同时启动多个 SPSS 会话。
+### 数据路径被拒 / Error #61
 
-### 数据文件被拒绝
+把数据放在项目内、`examples/data/`、临时目录或 `SPSS_ALLOWED_DIRS`；本 fork 会把相对路径解析为绝对路径，但仍建议在 Prompt 里给清晰路径。
 
-将数据放入 `examples/data/`、系统临时目录或配置的允许目录。不要通过改名绕过安全限制；应该正确设置数据白名单。
+### 中文标签异常
 
-### 中文变量标签显示异常
+Prompt 优先用变量名；先让 Agent 读变量标签再分析。
 
-优先在 Prompt 中使用变量名，并让 Agent 先读取变量标签。工具内部会尽量建立变量名与标签的映射，但统计语法仍应使用 SPSS 中真实存在的变量名。
-
-## 12. 一键完成完整分析的最终模板
-
-当你已经熟悉基本操作，可以直接把下面的模板发给 Agent：
+## 12. 一键完整分析模板
 
 ```text
-请作为我的 SPSS 统计分析助手，分析 [数据文件路径]，不要修改原始文件。
+请作为 SPSS 统计分析助手，分析 [数据文件路径]，不要修改原始文件。
 
-研究背景：[研究对象、研究目的和假设]
-数据说明：[样本量、变量含义、分组方式、时间结构]
-核心问题：[希望回答的统计问题]
+研究背景：[对象、目的、假设]
+数据说明：[样本量、变量、分组、时间结构]
+核心问题：[统计问题]
 
-请严格按以下顺序完成：
-1. 读取元数据，检查变量类型、标签、取值范围、缺失值和样本量；
-2. 说明每一个研究问题适合使用什么统计方法，以及选择理由；
-3. 执行必要的前提检验和异常值检查；
-4. 执行正式分析，报告估计值、标准误、置信区间、检验统计量、自由度、p 值和效应量；
-5. 生成与研究问题对应的论文级图表，要求 PNG 300 dpi；
-6. 给出中文结果解释和可直接修改的论文结果段；
-7. 保存完整 SPSS syntax、Viewer 输出和图像文件；
-8. 返回 Markdown 结果、结构化摘要、所有输出路径和警告；
-9. 最后列出结果的局限性，不把横断面相关关系表述为因果关系。
+请严格按顺序：
+1. 读元数据（类型、标签、取值、缺失、样本量）；
+2. 说明各问题适用方法与理由；
+3. 前提检验与异常值检查；
+4. 正式分析（估计值、SE、CI、统计量、df、p、效应量）；
+5. 对应论文级图（PNG 300 dpi）；
+6. 中文结果解释与可改的论文结果段；
+7. 保存 syntax、Viewer、图像路径；
+8. 返回 Markdown、结构化摘要、路径与警告；
+9. 列出局限，勿把相关表述为因果。
 
-如果变量编码、研究设计或统计假设不清楚，请先指出问题并向我提问，不要擅自假设。
+若编码或设计不清，先提问，不要擅自假设。
 ```
 
-## 13. 开发者和高级用户
+## 13. 开发与验证
 
-在项目根目录运行：
-
-```powershell
+```bash
 python scripts/make_sample_data.py
 python scripts/method_verification.py
 python scripts/tool_verification.py
@@ -430,12 +394,11 @@ python scripts/archive_sample_charts.py
 pytest
 ```
 
-实现、结果解析、方法验证和安全边界分别见：
+延伸阅读：
 
 - [技术报告](technical_report.md)
 - [出图管线](poc_chart_pipeline.md)
 - [结果解析](result_parsing.md)
 - [方法验证](method_verification.md)
 - [安全层](security.md)
-
-如果你要把固定的研究流程交给团队反复使用，可以把“数据检查 → 方法选择 → 分析 → 出图 → 论文解释”的 Prompt 固化为团队 skill，并要求每次输出 `.sps` 语法和审计记录。
+- [样例数据与图](../examples/README.md)
